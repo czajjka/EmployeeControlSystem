@@ -21,6 +21,8 @@ public class EntryExit {
 
     private LocalDateTime endTime;
 
+    boolean isLoggedOut = false;
+
 //    private long duration;
 //    // Czas trwania przebywania w systemie
 
@@ -55,5 +57,13 @@ public class EntryExit {
 
     public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
+    }
+
+    public boolean isLoggedOut() {
+        return isLoggedOut;
+    }
+
+    public void setLoggedOut(boolean loggedOut) {
+        isLoggedOut = loggedOut;
     }
 }

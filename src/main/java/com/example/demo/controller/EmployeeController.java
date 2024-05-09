@@ -6,7 +6,6 @@ import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.repository.EntryExitRepository;
 import com.example.demo.service.EmployeeServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -67,11 +66,20 @@ public class EmployeeController {
 
     @PostMapping("/saveEntry")
     public String updateForm(int pin) {
+        // Sprawdz czy jest użytkownik
         try {
             Employee employee = employeeServiceImpl.getByPin(pin);
             LocalDateTime now = LocalDateTime.now();
             EntryExit entryExit = entryExitRepository.findFirstByEmployeeAndEndTimeIsNullOrderByStartTimeDesc(employee);
+            // Sprawdz czy istnieje rekord & czy jest startTime & czy nie ma endTime
             if (entryExit != null && entryExit.getStartTime() != null && entryExit.getEndTime() == null) {
+                if (now.getDayOfMonth() != entryExit.getStartTime().getDayOfMonth()) {
+                    entryExit = new EntryExit();
+                    entryExit.setStartTime(now);
+                    entryExit.setEmployee(employee);
+                    employeeServiceImpl.save(entryExit);
+                    return "redirect:/";
+                }
                 return "redirect:/erroruser";
             } else {
                 entryExit = new EntryExit();
@@ -102,62 +110,48 @@ public class EmployeeController {
             EntryExit entryExit = entryExitRepository.findFirstByEmployeeAndEndTimeIsNullOrderByStartTimeDesc(employee);
             if (entryExit != null && entryExit.getStartTime() != null && entryExit.getEndTime() != null) {
                 return "redirect:/erroruser";
-            } else {
-                entryExit.getStartTime();
-                entryExit.setEndTime(now);
-                employeeServiceImpl.save(entryExit); // Zapisz nowy wpis
-                return "redirect:/";
-            }
-
+                } else {
+                    entryExit.getStartTime();
+                    entryExit.setEndTime(now);
+                    employeeServiceImpl.save(entryExit); // Zapisz nowy wpis
+                    return "redirect:/";
+                }
         } catch (Exception e) {
             System.err.println("Wystąpił błąd podczas ustawiania właściwości: " + e.getMessage());
             return "redirect:/erroruser";
         }
     }
-}
-//    @PostMapping("/saveEntry")
-//    public String updateExitForm(int pin) {
-//        Employee employee = employeeServiceImpl.getByPin(pin);
-//        LocalDateTime now = LocalDateTime.now();
-//        EntryExit entryExit = entryExitRepository.findFirstByEmployeeAndEndTimeIsNullOrderByStartTimeDesc(employee);
-//
-//        if (entryExit != null) {
-//            // Jeśli istnieje, ustaw czas wyjścia
-//            entryExit.setEndTime(now);
-//            employeeServiceImpl.save(entryExit); // Zapisz zmiany w istniejącym wpisie
-//        } else {
-//            // W przeciwnym razie utwórz nowy wpis wejścia
-//            entryExit = new EntryExit();
-//            entryExit.setStartTime(now);
-//            entryExit.setEmployee(employee);
-//            employeeServiceImpl.save(entryExit); // Zapisz nowy wpis
-//        }
-//
-//        return "redirect:/";
-//    }
-//    @PostMapping("/exit")
-//    public String setEndTime(@RequestParam long entryExitId) {
-//        EntryExit entryExit = entryExitRepository.findById(entryExitId).orElse(null);
-//        if (entryExit != null) {
-//            entryExit.setEndTime(LocalDateTime.now());
-//            entryExitRepository.save(entryExit);
-//        }
-//        return "redirect:/";
-//    }
 
-//    @GetMapping("/reports/{employeeId}")
-//    public String getReportsForEmployee(@PathVariable Long employeeId, Model model) {
-//        // Pobierz pracownika na podstawie jego identyfikatora
-//        Employee employee = employeeRepository.findById(employeeId).orElse(null);
-//        if (employee == null) {
-//            // Obsłuż sytuację, gdy nie znaleziono pracownika o podanym identyfikatorze
-//            return "employeeNotFound";
-//        }
-//
-//        // Pobierz wszystkie wpisy wejść i wyjść dla tego pracownika
+
+    @GetMapping("/reports/{employeeId}")
+    public String getReportsForEmployee(@PathVariable Long employeeId, Model model) {
+        // Pobierz pracownika na podstawie jego identyfikatora
+        Employee employee = employeeRepository.findById(employeeId).orElse(null);
+        if (employee == null) {
+            // Obsłuż sytuację, gdy nie znaleziono pracownika o podanym identyfikatorze
+            return "employeeNotFound";
+        }
+
+        // Pobierz wszystkie wpisy wejść i wyjść dla tego pracownika
+        List<EntryExit> reports = entryExitRepository.findByEmployee(employee);
+        model.addAttribute("reports", reports);
+        model.addAttribute("employee", employee);
+        return "report";
+    }
+
+    @GetMapping("/reports")
+    public String getReportsForEmployees(Model model) {
+        // Pobierz pracownika na podstawie jego identyfikatora
+        List<Employee> employee = employeeRepository.findAll();
+        if (employee == null) {
+            // Obsłuż sytuację, gdy nie znaleziono pracownika o podanym identyfikatorze
+            return "employeesNotFound";
+        }
+
+        // Pobierz wszystkie wpisy wejść i wyjść dla tego pracownika
 //        List<EntryExit> reports = entryExitRepository.findByEmployee(employee);
 //        model.addAttribute("reports", reports);
-//        model.addAttribute("employee", employee);
-//        return "reports";
-//    }
-
+        model.addAttribute("employees", employee);
+        return "report";
+    }
+}
