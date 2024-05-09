@@ -6,23 +6,25 @@ import java.util.List;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class Employee {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private long id;
     private String name;
     private String surname;
+
     @Column(unique = true)
     private int pin;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserInOut> entryExitRecords;
+    @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL)
+    private List<EntryExit> reports;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -48,5 +50,6 @@ public class User {
 
     public void setPin(int pin) {
         this.pin = pin;
+
     }
 }
