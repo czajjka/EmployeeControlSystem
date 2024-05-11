@@ -66,26 +66,18 @@ public class EmployeeController {
 
     @PostMapping("/saveEntry")
     public String updateForm(int pin) {
-        // Sprawdz czy jest użytkownik
         try {
             Employee employee = employeeServiceImpl.getByPin(pin);
             LocalDateTime now = LocalDateTime.now();
             EntryExit entryExit = entryExitRepository.findFirstByEmployeeAndEndTimeIsNullOrderByStartTimeDesc(employee);
-            // Sprawdz czy istnieje rekord & czy jest startTime & czy nie ma endTime
             if (entryExit != null && entryExit.getStartTime() != null && entryExit.getEndTime() == null) {
-                if (now.getDayOfMonth() != entryExit.getStartTime().getDayOfMonth()) {
-                    entryExit = new EntryExit();
-                    entryExit.setStartTime(now);
-                    entryExit.setEmployee(employee);
-                    employeeServiceImpl.save(entryExit);
-                    return "redirect:/";
-                }
-                return "redirect:/erroruser";
+                return "erroruser";
+
             } else {
                 entryExit = new EntryExit();
                 entryExit.setStartTime(now);
                 entryExit.setEmployee(employee);
-                employeeServiceImpl.save(entryExit); // Zapisz nowy wpis
+                employeeServiceImpl.save(entryExit);
                 return "redirect:/";
 
             }
@@ -109,49 +101,49 @@ public class EmployeeController {
             LocalDateTime now = LocalDateTime.now();
             EntryExit entryExit = entryExitRepository.findFirstByEmployeeAndEndTimeIsNullOrderByStartTimeDesc(employee);
             if (entryExit != null && entryExit.getStartTime() != null && entryExit.getEndTime() != null) {
-                return "redirect:/erroruser";
-                } else {
-                    entryExit.getStartTime();
-                    entryExit.setEndTime(now);
-                    employeeServiceImpl.save(entryExit); // Zapisz nowy wpis
-                    return "redirect:/";
-                }
+                return "erroruser";
+
+            } else {
+                entryExit.getStartTime();
+                entryExit.setEndTime(now);
+                employeeServiceImpl.save(entryExit);
+                return "redirect:/";
+            }
         } catch (Exception e) {
             System.err.println("Wystąpił błąd podczas ustawiania właściwości: " + e.getMessage());
-            return "redirect:/erroruser";
+            return "erroruser";
         }
     }
 
-
     @GetMapping("/reports/{employeeId}")
     public String getReportsForEmployee(@PathVariable Long employeeId, Model model) {
-        // Pobierz pracownika na podstawie jego identyfikatora
         Employee employee = employeeRepository.findById(employeeId).orElse(null);
         if (employee == null) {
-            // Obsłuż sytuację, gdy nie znaleziono pracownika o podanym identyfikatorze
-            return "employeeNotFound";
+            return "usernotfound";
         }
-
-        // Pobierz wszystkie wpisy wejść i wyjść dla tego pracownika
         List<EntryExit> reports = entryExitRepository.findByEmployee(employee);
         model.addAttribute("reports", reports);
         model.addAttribute("employee", employee);
         return "report";
     }
 
-    @GetMapping("/reports")
-    public String getReportsForEmployees(Model model) {
-        // Pobierz pracownika na podstawie jego identyfikatora
-        List<Employee> employee = employeeRepository.findAll();
-        if (employee == null) {
-            // Obsłuż sytuację, gdy nie znaleziono pracownika o podanym identyfikatorze
-            return "employeesNotFound";
-        }
+    @GetMapping("/addreports")
+    public String addNewReport(Model model) {
+        Employee employee = new Employee();
+        model.addAttribute("employee", employee);
+        return "addreports";
+    }
 
-        // Pobierz wszystkie wpisy wejść i wyjść dla tego pracownika
-//        List<EntryExit> reports = entryExitRepository.findByEmployee(employee);
-//        model.addAttribute("reports", reports);
-        model.addAttribute("employees", employee);
+    @PostMapping("/reports")
+    public String getReportsForEmployeee(@RequestParam Long employeeId, Model model) {
+        Employee employee = employeeRepository.findById(employeeId).orElse(null);
+        if (employee == null) {
+            return "usernotfound";
+        }
+        List<EntryExit> reports = entryExitRepository.findByEmployee(employee);
+        model.addAttribute("reports", reports);
+        model.addAttribute("employee", employee);
         return "report";
     }
+
 }
