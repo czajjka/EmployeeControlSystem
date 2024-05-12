@@ -6,11 +6,16 @@ import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.repository.EntryExitRepository;
 import com.example.demo.service.EmployeeServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -95,7 +100,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/exitEntry")
-    public String exitForm(int pin) {
+    public String exitForm(int pin, Model model) {
         try {
             Employee employee = employeeServiceImpl.getByPin(pin);
             LocalDateTime now = LocalDateTime.now();
@@ -143,7 +148,38 @@ public class EmployeeController {
         List<EntryExit> reports = entryExitRepository.findByEmployee(employee);
         model.addAttribute("reports", reports);
         model.addAttribute("employee", employee);
+
         return "report";
     }
+//    @GetMapping("/allreports")
+//    public String getAllUserReports(Model model) {
+//        List<Employee> allUsers = employeeRepository.findAll();
+//        List<EntryExit> allReports = new ArrayList<>();
+//
+//        for (Employee user : allUsers) {
+//            List<EntryExit> reports = entryExitRepository.findByEmployee(user);
+//            allReports.addAll(reports);
+//        }
+//
+//        model.addAttribute("reports", allReports);
+//
+//        return "allreports";
+//    }
 
+    @GetMapping("/reports")
+    public String getAllUserReports(@RequestParam(value = "startTime", required = false) String startTimeString, Model model) {
+        List<EntryExit> allReports;
+
+        if (startTimeString == null || startTimeString.isEmpty()) {
+            allReports = entryExitRepository.findAll();
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDateTime dt = LocalDate.parse(startTimeString, formatter).atStartOfDay();
+            allReports = entryExitRepository.findByStartTime(dt);
+        }
+
+        model.addAttribute("reports", allReports);
+
+        return "allreports";
+    }
 }

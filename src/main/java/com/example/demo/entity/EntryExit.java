@@ -2,8 +2,8 @@ package com.example.demo.entity;
 
 import jakarta.persistence.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "entryexit")
@@ -21,10 +21,9 @@ public class EntryExit {
 
     private LocalDateTime endTime;
 
-    boolean isLoggedOut = false;
+//    boolean isLoggedOut = false;
 
-//    private long duration;
-//    // Czas trwania przebywania w systemie
+    private long duration;
 
 
     public long getId() {
@@ -59,11 +58,8 @@ public class EntryExit {
         this.endTime = endTime;
     }
 
-    public boolean isLoggedOut() {
-        return isLoggedOut;
-    }
-
-    public void setLoggedOut(boolean loggedOut) {
-        isLoggedOut = loggedOut;
+    public String getDuration() {
+        Duration duration = Duration.between(this.startTime, this.endTime);
+        return String.format("%02d:%02d",duration.toHours(), duration.toMinutes()%60);
     }
 }

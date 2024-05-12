@@ -12,6 +12,13 @@
 <div class="container my-2" align="center">
 
     <h3>Report List</h3>
+<!--    <a th:href="@{/filter}" class="btn btn-primary btn-sm mb-3" >Filter By Date</a>-->
+    <form action="/reports" method="get">
+        <label for="startTime">Enter the date of entry:</label>
+        <input type="date" id="startTime" name="startTime">
+        <button type="submit">Filter</button>
+    </form>
+
     <table style="width:80%" border="1"
            class="table table-striped table-responsive-md">
         <thead>
@@ -34,3 +41,4 @@
 </div>
 </body>
 </html>
+
