@@ -151,20 +151,6 @@ public class EmployeeController {
 
         return "report";
     }
-//    @GetMapping("/allreports")
-//    public String getAllUserReports(Model model) {
-//        List<Employee> allUsers = employeeRepository.findAll();
-//        List<EntryExit> allReports = new ArrayList<>();
-//
-//        for (Employee user : allUsers) {
-//            List<EntryExit> reports = entryExitRepository.findByEmployee(user);
-//            allReports.addAll(reports);
-//        }
-//
-//        model.addAttribute("reports", allReports);
-//
-//        return "allreports";
-//    }
 
     @GetMapping("/reports")
     public String getAllUserReports(@RequestParam(value = "startTime", required = false) String startTimeString, Model model) {
@@ -183,3 +169,39 @@ public class EmployeeController {
         return "allreports";
     }
 }
+
+//    @GetMapping("/reports")
+//    public String getAllUserReports(@RequestParam(value = "startTime", required = false) String startTimeString, @RequestParam(value = "endTime", required = false) String endTimeString,
+//                                    Model model) {
+//        List<EntryExit> reports;
+//
+//        if ((startTimeString == null || startTimeString.isEmpty()) && (endTimeString == null || endTimeString.isEmpty())) {
+//            reports = entryExitRepository.findAll();
+//            LocalDateTime startTime = null;
+//            LocalDateTime endTime = null;
+//
+//            // Parsuj datę początkową, jeśli jest dostępna
+//            if (startTimeString != null && !startTimeString.isEmpty()) {
+//                startTime = LocalDateTime.parse(startTimeString + " 00:00:00.000000", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"));
+//            }
+//
+//            // Parsuj datę końcową, jeśli jest dostępna
+//            if (endTimeString != null && !endTimeString.isEmpty()) {
+//                endTime = LocalDateTime.parse(endTimeString + " 23:59:59.999999", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"));
+//            }
+//
+//            // Jeśli obie daty są dostępne, użyj filtrowania między datami
+//            if (startTime != null && endTime != null) {
+//                reports = entryExitRepository.findByStartTimeBetween(startTime, endTime);
+//            } else if (startTime != null) { // Jeśli jest dostępna tylko data początkowa, użyj filtrowania począwszy od tej daty
+//                reports = entryExitRepository.findByStartTimeAfter(startTime);
+//            } else { // Jeśli jest dostępna tylko data końcowa, użyj filtrowania do tej daty
+//                reports = entryExitRepository.findByStartTimeBefore(endTime);
+//            }
+//        }
+//
+//        model.addAttribute("reports", reports);
+//
+//        return "allreports";
+//    }
+//}

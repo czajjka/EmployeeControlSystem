@@ -14,8 +14,10 @@
     <h3>Report List</h3>
 <!--    <a th:href="@{/filter}" class="btn btn-primary btn-sm mb-3" >Filter By Date</a>-->
     <form action="/reports" method="get">
-        <label for="startTime">Enter the date of entry:</label>
+        <label for="startTime">Date of entry:</label>
         <input type="date" id="startTime" name="startTime">
+        <label for="endTime">Date of exit:</label>
+        <input type="date" id="endTime" name="endTime">
         <button type="submit">Filter</button>
     </form>
 
