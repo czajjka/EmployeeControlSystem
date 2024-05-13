@@ -17,6 +17,7 @@
         <thead>
         <tr>
             <th>Id</th>
+            <th>Employee</th>
             <th>Start Time</th>
             <th>End Time</th>
             <th>Work Hours</th>
@@ -25,6 +26,7 @@
         <tbody>
         <tr th:each="report : ${reports}">
             <td th:text="${report.id}"></td>
+            <td th:text="${report.employee.name + ' ' + report.employee.surname}"></td>
             <td th:text="${#temporals.format(report.startTime, 'dd-MM-yyyy HH:mm')}"></td>
             <td th:text="${#temporals.format(report.endTime, 'dd-MM-yyyy HH:mm')}"></td>
             <td th:text="${report.getDuration()}"></td>

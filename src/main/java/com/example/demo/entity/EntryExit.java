@@ -62,4 +62,16 @@ public class EntryExit {
         Duration duration = Duration.between(this.startTime, this.endTime);
         return String.format("%02d:%02d",duration.toHours(), duration.toMinutes()%60);
     }
+
+    public long getWorkTime() {
+        Duration duration = Duration.between(this.startTime, this.endTime);
+        return duration.toHours();
+    }
+//public long[] getWorkTime() {
+//    Duration duration = Duration.between(this.startTime, this.endTime);
+//    long totalMinutes = duration.toMinutes();
+//    long hours = totalMinutes / 60;
+//    long minutes = totalMinutes % 60;
+//    return new long[]{hours, minutes};
+//}
 }

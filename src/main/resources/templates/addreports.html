@@ -9,19 +9,24 @@
 </head>
 <body>
 <div class="container">
-    <h1>Employee Control System</h1>
+    <h1 class="text-center">Employee Control System</h1>
     <hr>
-    <h2>Show Employee Reports By Id</h2>
-
-    <form action="#" th:action="@{/reports}" method="post">
-        <input type="text" name="employeeId" placeholder="Employee ID" class="form-control mb-4 col-4">
-
-        <button type="submit" class="btn btn-info col-2">Find Report</button>
-    </form>
-
-    <hr>
-
-    <a th:href="@{/}"> Back to Employee List</a>
-</div>
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Show Employee Reports</h2>
+            <hr>
+            <form action="#" th:action="@{/reports}" method="post">
+                <select class="form-control" name="employeeId">
+                    <option value="">Show List of Employee</option>
+                    <option th:each="employee : ${allemplist}"
+                            th:value="${employee.id}"
+                            th:text="${employee.name + ' ' + employee.surname + ' ' + employee.id}">
+                    </option>
+                </select>
+                <hr>
+                <button type="submit" class="btn btn-info col-4">Find Report</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

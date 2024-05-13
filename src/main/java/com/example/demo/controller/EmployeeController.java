@@ -5,17 +5,16 @@ import com.example.demo.entity.EntryExit;
 import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.repository.EntryExitRepository;
 import com.example.demo.service.EmployeeServiceImpl;
+import com.example.demo.service.EmployeeServices;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -30,9 +29,18 @@ public class EmployeeController {
     @Autowired
     private EntryExitRepository entryExitRepository;
 
+    @Autowired
+    private EmployeeServices employeeServices;
+
+    @Autowired
+    public EmployeeController(EmployeeServices employeeServices) {
+        this.employeeServices = employeeServices;
+    }
+
     @GetMapping("/")
     public String viewHomePage(Model model) {
-        model.addAttribute("allemplist", employeeServiceImpl.getAllEmployee());
+        List<Employee> allEmployees = employeeServices.getAllEmployee();
+        model.addAttribute("allemplist", allEmployees);
         return "index";
     }
 
@@ -134,8 +142,8 @@ public class EmployeeController {
 
     @GetMapping("/addreports")
     public String addNewReport(Model model) {
-        Employee employee = new Employee();
-        model.addAttribute("employee", employee);
+        List<Employee> allEmployees = employeeServices.getAllEmployee();
+        model.addAttribute("allemplist", allEmployees);
         return "addreports";
     }
 
@@ -153,55 +161,58 @@ public class EmployeeController {
     }
 
     @GetMapping("/reports")
-    public String getAllUserReports(@RequestParam(value = "startTime", required = false) String startTimeString, Model model) {
+    public String getAllUserReports(@RequestParam(value = "startTime", required = false) String startTimeString,
+                                    @RequestParam(value = "endTime", required = false) String endTimeString,
+                                    @RequestParam(value = "employeeId", required = false) Long employeeId,
+                                    Model model) {
         List<EntryExit> allReports;
+        long getWorkHours = 0;
 
-        if (startTimeString == null || startTimeString.isEmpty()) {
-            allReports = entryExitRepository.findAll();
-        } else {
+
+        if (employeeId != null && startTimeString != null && !startTimeString.isEmpty() && endTimeString != null && !endTimeString.isEmpty()) {
+            // Jeśli wybrano pracownika i przekazano daty wejścia i wyjścia, filtruj raporty dla tego pracownika z uwzględnieniem dat
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDateTime dt = LocalDate.parse(startTimeString, formatter).atStartOfDay();
-            allReports = entryExitRepository.findByStartTime(dt);
+            LocalDateTime startTime = LocalDate.parse(startTimeString, formatter).atStartOfDay();
+            LocalDateTime endTime = LocalDate.parse(endTimeString, formatter).atTime(LocalTime.MAX);
+            allReports = entryExitRepository.findByTimeRangeAndEmployee(startTime, endTime, employeeId);
+        } else if (employeeId != null) {
+            // Jeśli wybrano pracownika, ale nie przekazano dat, zwróć wszystkie raporty dla tego pracownika
+            allReports = entryExitRepository.findByEmployeeId(employeeId);
+            for (EntryExit ele : allReports) {
+                getWorkHours += ele.getWorkTime();
+            }
+        } else {
+            // Jeśli nie wybrano pracownika, sprawdź, czy przekazano daty
+            if ((startTimeString == null || startTimeString.isEmpty()) && (endTimeString == null || endTimeString.isEmpty())) {
+                // Jeśli nie przekazano dat, zwróć wszystkie raporty
+                allReports = entryExitRepository.findAll();
+            } else if (startTimeString != null && !startTimeString.isEmpty() && (endTimeString == null || endTimeString.isEmpty())) {
+                // Jeśli przekazano tylko datę początkową, filtruj raporty po dacie początkowej
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDateTime startTime = LocalDate.parse(startTimeString, formatter).atStartOfDay();
+                LocalDateTime endTime = LocalDateTime.MAX;
+                allReports = entryExitRepository.findByStartTime(startTime);
+            } else if (startTimeString == null || startTimeString.isEmpty()) {
+                // Jeśli przekazano tylko datę końcową, filtruj raporty po dacie końcowej
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDateTime startTime = LocalDateTime.MIN;
+                LocalDateTime endTime = LocalDate.parse(endTimeString, formatter).atTime(LocalTime.MAX);
+                allReports = entryExitRepository.findByEndTime(endTime);
+            } else {
+                // Jeśli przekazano obie daty, filtruj raporty po zakresie dat
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDateTime startTime = LocalDate.parse(startTimeString, formatter).atStartOfDay();
+                LocalDateTime endTime = LocalDate.parse(endTimeString, formatter).atTime(LocalTime.MAX);
+                allReports = entryExitRepository.findByTimeRange(startTime, endTime);
+            }
         }
-
+        List<Employee> allEmployees = employeeRepository.findAll();
+        model.addAttribute("allemplist", allEmployees);
         model.addAttribute("reports", allReports);
+        model.addAttribute("totalWorkHours", getWorkHours);
+
 
         return "allreports";
     }
 }
 
-//    @GetMapping("/reports")
-//    public String getAllUserReports(@RequestParam(value = "startTime", required = false) String startTimeString, @RequestParam(value = "endTime", required = false) String endTimeString,
-//                                    Model model) {
-//        List<EntryExit> reports;
-//
-//        if ((startTimeString == null || startTimeString.isEmpty()) && (endTimeString == null || endTimeString.isEmpty())) {
-//            reports = entryExitRepository.findAll();
-//            LocalDateTime startTime = null;
-//            LocalDateTime endTime = null;
-//
-//            // Parsuj datę początkową, jeśli jest dostępna
-//            if (startTimeString != null && !startTimeString.isEmpty()) {
-//                startTime = LocalDateTime.parse(startTimeString + " 00:00:00.000000", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"));
-//            }
-//
-//            // Parsuj datę końcową, jeśli jest dostępna
-//            if (endTimeString != null && !endTimeString.isEmpty()) {
-//                endTime = LocalDateTime.parse(endTimeString + " 23:59:59.999999", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"));
-//            }
-//
-//            // Jeśli obie daty są dostępne, użyj filtrowania między datami
-//            if (startTime != null && endTime != null) {
-//                reports = entryExitRepository.findByStartTimeBetween(startTime, endTime);
-//            } else if (startTime != null) { // Jeśli jest dostępna tylko data początkowa, użyj filtrowania począwszy od tej daty
-//                reports = entryExitRepository.findByStartTimeAfter(startTime);
-//            } else { // Jeśli jest dostępna tylko data końcowa, użyj filtrowania do tej daty
-//                reports = entryExitRepository.findByStartTimeBefore(endTime);
-//            }
-//        }
-//
-//        model.addAttribute("reports", reports);
-//
-//        return "allreports";
-//    }
-//}
