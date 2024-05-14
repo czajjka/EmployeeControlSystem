@@ -2,11 +2,14 @@ package com.example.demo.service;
 
 import com.example.demo.entity.Employee;
 import com.example.demo.entity.EntryExit;
+import com.example.demo.exelexport.ExcelExportUtils;
 import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.repository.EntryExitRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -64,6 +67,7 @@ public class EmployeeServiceImpl implements EmployeeServices {
         Employee employee = empRepo.findById(employeeId).orElse(null);
         return entryExitRepo.findByEmployee(employee);
     }
+
     public long calculateWorkTimeForEmployee(Long employeeId, LocalDateTime startTime, LocalDateTime endTime) {
         // Pobierz wpisy dotyczące czasu pracy dla danego pracownika
         List<EntryExit> reportsForEmployee = (List<EntryExit>) empRepo.getById(employeeId);
@@ -81,5 +85,12 @@ public class EmployeeServiceImpl implements EmployeeServices {
                 .sum();
 
         return totalWorkTime;
+    }
+
+    public List<Employee> exportEmployeeToExcel(HttpServletResponse response) throws IOException {
+        List<Employee> employee = empRepo.findAll();
+        ExcelExportUtils exportUtils = new ExcelExportUtils(employee);
+        exportUtils.exportDataToExcel(response);
+        return employee;
     }
 }

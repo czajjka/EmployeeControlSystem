@@ -52,4 +52,8 @@ public class Employee {
         this.pin = pin;
 
     }
+
+    public List<EntryExit> getReports() {
+        return reports;
+    }
 }

@@ -7,11 +7,13 @@ import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.repository.EntryExitRepository;
 import com.example.demo.service.EmployeeServiceImpl;
 import com.example.demo.service.EmployeeServices;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -252,5 +254,15 @@ public class EmployeeController {
         model.addAttribute("allemplist", allEmployees);
         model.addAttribute("employeeReports", employeeReports);
         return "indexreport";
+    }
+
+    //export to exel
+    @GetMapping("/export-to-excel")
+    public void exportToExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=Employee_Information.xlsx";
+        response.setHeader(headerKey, headerValue);
+        employeeServiceImpl.exportEmployeeToExcel(response);
     }
 }

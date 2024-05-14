@@ -65,7 +65,6 @@ public class EntryExit {
         return String.format("%02d:%02d", duration.toHours(), duration.toMinutes() % 60);
 
     }
-
     public long getWorkTime() {
         Duration duration = Duration.between(this.startTime, this.endTime);
         return duration.toHours();
