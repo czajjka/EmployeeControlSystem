@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.Employee;
+import com.example.demo.entity.EmployeeReport;
 import com.example.demo.entity.EntryExit;
 import com.example.demo.repository.EmployeeRepository;
 import com.example.demo.repository.EntryExitRepository;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -150,6 +152,7 @@ public class EmployeeController {
     @PostMapping("/reports")
     public String getReportsForEmployeee(@RequestParam Long employeeId, Model model) {
         Employee employee = employeeRepository.findById(employeeId).orElse(null);
+
         if (employee == null) {
             return "usernotfound";
         }
@@ -214,5 +217,40 @@ public class EmployeeController {
 
         return "allreports";
     }
-}
 
+    @GetMapping("/indexreport")
+    public String calculateWorkTimeForEmployee(
+            @RequestParam(value = "startTime", required = false) String startTimeString,
+            @RequestParam(value = "endTime", required = false) String endTimeString,
+            @RequestParam(value = "employeeId", required = false) Long employeeId,
+            Model model) {
+
+        List<Employee> allEmployees = employeeRepository.findAll();
+        List<EmployeeReport> employeeReports = new ArrayList<>();
+
+        for (Employee employee : allEmployees) {
+            long totalWorkHours = 0;
+
+            List<EntryExit> reportsForEmployee = employeeServiceImpl.getReportsForEmployee(employee.getId());
+
+            if (startTimeString != null && !startTimeString.isEmpty() && endTimeString != null && !endTimeString.isEmpty()) {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDateTime startTime = LocalDate.parse(startTimeString, formatter).atStartOfDay();
+                LocalDateTime endTime = LocalDate.parse(endTimeString, formatter).atTime(LocalTime.MAX);
+                totalWorkHours = employeeServiceImpl.calculateWorkTimeForEmployee(employee.getId(), startTime, endTime);
+            } else {
+                // Oblicz podsumowanie godzin dla wszystkich dostępnych raportów pracownika
+                totalWorkHours = reportsForEmployee.stream()
+                        .mapToLong(EntryExit::getWorkTime)
+                        .sum();
+            }
+
+            EmployeeReport employeeReport = new EmployeeReport(employee, totalWorkHours);
+            employeeReports.add(employeeReport);
+        }
+
+        model.addAttribute("allemplist", allEmployees);
+        model.addAttribute("employeeReports", employeeReports);
+        return "indexreport";
+    }
+}

@@ -15,13 +15,9 @@ public interface EmployeeServices {
 
     void deleteViaId(long id);
 
-    //report
-
     Employee getByPin(int pin);
 
     void save(EntryExit entryExit);
 
     List<EntryExit> getReportsForEmployee(Long employeeId);
-
-
 }

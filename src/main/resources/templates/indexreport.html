@@ -43,27 +43,18 @@
         <tr>
             <th>Id</th>
             <th>Employee</th>
-            <th>Start Time</th>
-            <th>End Time</th>
-            <th>Work Hours</th>
+            <th>Total Work Hours</th>
         </tr>
         </thead>
         <tbody>
-        <tr th:each="report : ${reports}">
-            <td th:text="${report.employee.id}"></td>
-            <td th:text="${report.employee.name + ' ' + report.employee.surname}"></td>
-            <td th:text="${#temporals.format(report.startTime, 'dd-MM-yyyy HH:mm')}"></td>
-            <td th:text="${#temporals.format(report.endTime, 'dd-MM-yyyy HH:mm')}"></td>
-            <td th:text="${report.getDuration()}"></td>
+        <tr th:each="employeeReport : ${employeeReports}">
+            <td th:text="${employeeReport.employee.id}"></td>
+            <td th:text="${employeeReport.employee.name + ' ' + employeeReport.employee.surname}"></td>
+            <td th:text="${employeeReport.totalWorkHours}"></td>
         </tr>
-        <tr>
-            <td colspan="4" style="text-align: right;"><b>Summary hours:</b></td>
-            <td><b><span th:text="${totalWorkHours}"></span></b></td>
-        </tr>
-
         </tbody>
     </table>
-    <a th:href="@{/indexreport}"> Back to Raport List</a>
+    <a th:href="@{/}"> Back to Employee List</a>
 </div>
 </body>
 </html>
