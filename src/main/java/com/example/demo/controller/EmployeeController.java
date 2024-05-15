@@ -258,11 +258,13 @@ public class EmployeeController {
 
     //export to exel
     @GetMapping("/export-to-excel")
-    public void exportToExcel(HttpServletResponse response) throws IOException {
+    public void exportToExcel(HttpServletResponse response,
+                              @RequestParam(value = "startTime", required = false) String startTimeString,
+                              @RequestParam(value = "endTime", required = false) String endTimeString,
+                              @RequestParam(value = "employeeId", required = false) Long employeeId) throws IOException {
         response.setContentType("application/octet-stream");
         String headerKey = "Content-Disposition";
         String headerValue = "attachment; filename=Employee_Information.xlsx";
         response.setHeader(headerKey, headerValue);
-        employeeServiceImpl.exportEmployeeToExcel(response);
-    }
-}
+        employeeServiceImpl.exportEmployeeToExcel(response, startTimeString, endTimeString, employeeId);
+    }}

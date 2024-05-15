@@ -10,7 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -87,10 +91,36 @@ public class EmployeeServiceImpl implements EmployeeServices {
         return totalWorkTime;
     }
 
-    public List<Employee> exportEmployeeToExcel(HttpServletResponse response) throws IOException {
-        List<Employee> employee = empRepo.findAll();
-        ExcelExportUtils exportUtils = new ExcelExportUtils(employee);
+    public List<Employee> exportEmployeeToExcel(HttpServletResponse response, String startTimeString, String endTimeString, Long employeeId) throws IOException {
+        List<EntryExit> filteredReports;
+        long getWorkHours = 0;
+        System.out.println("AAA");
+        System.out.println(response.getCharacterEncoding());
+        System.out.println("AAA");
+        // Filtruj raporty na podstawie przekazanych parametrów
+        if (employeeId != null && startTimeString != null && !startTimeString.isEmpty() && endTimeString != null && !endTimeString.isEmpty()) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDateTime startTime = LocalDate.parse(startTimeString, formatter).atStartOfDay();
+            LocalDateTime endTime = LocalDate.parse(endTimeString, formatter).atTime(LocalTime.MAX);
+            filteredReports = entryExitRepo.findByTimeRangeAndEmployee(startTime, endTime, employeeId);
+        } else if (employeeId != null) {
+            filteredReports = entryExitRepo.findByEmployeeId(employeeId);
+            for (EntryExit ele : filteredReports) {
+                getWorkHours += ele.getWorkTime();
+            }
+        } else {
+            // Jeśli nie podano żadnych filtrów, zwróć wszystkie raporty
+            filteredReports = entryExitRepo.findAll();
+        }
+
+        // Twórz listę pracowników na podstawie filtrowanych raportów
+        List<Employee> employees = new ArrayList<>();
+        for (EntryExit entryExit : filteredReports) {
+            employees.add(entryExit.getEmployee());
+        }
+
+        // Eksportuj dane do excela
+        ExcelExportUtils exportUtils = new ExcelExportUtils(employees);
         exportUtils.exportDataToExcel(response);
-        return employee;
-    }
-}
+        return employees;
+    }}

@@ -34,6 +34,7 @@
             <input type="hidden" id="employeeId" name="employeeId" th:value="${employeeId}">
         </div>
         <button type="submit" class="btn btn-primary">Filter</button>
+        <a th:href="@{/export-to-excel}"> Export to Excel</a>
     </form>
     <hr>
 
@@ -64,6 +65,7 @@
         </tbody>
     </table>
     <a th:href="@{/indexreport}"> Back to Raport List</a>
+
 </div>
 </body>
 </html>
