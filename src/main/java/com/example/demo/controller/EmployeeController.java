@@ -20,6 +20,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Controller
 public class EmployeeController {
@@ -173,7 +175,6 @@ public class EmployeeController {
         List<EntryExit> allReports;
         long getWorkHours = 0;
 
-
         if (employeeId != null && startTimeString != null && !startTimeString.isEmpty() && endTimeString != null && !endTimeString.isEmpty()) {
             // Jeśli wybrano pracownika i przekazano daty wejścia i wyjścia, filtruj raporty dla tego pracownika z uwzględnieniem dat
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -256,7 +257,6 @@ public class EmployeeController {
         return "indexreport";
     }
 
-    //export to exel
     @GetMapping("/export-to-excel")
     public void exportToExcel(HttpServletResponse response,
                               @RequestParam(value = "startTime", required = false) String startTimeString,
@@ -267,4 +267,5 @@ public class EmployeeController {
         String headerValue = "attachment; filename=Employee_Information.xlsx";
         response.setHeader(headerKey, headerValue);
         employeeServiceImpl.exportEmployeeToExcel(response, startTimeString, endTimeString, employeeId);
-    }}
+    }
+}

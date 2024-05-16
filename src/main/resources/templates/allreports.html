@@ -11,7 +11,7 @@
 <body>
 <div class="container my-2" align="center">
     <h3>Employee Reports</h3>
-    <form action="/reports" method="get">
+    <form action="/export-to-excel" method="get">
         <div class="form-row">
             <div class="form-group col-md-4">
                 <label for="employeeId">Select Employee:</label>
@@ -34,7 +34,7 @@
             <input type="hidden" id="employeeId" name="employeeId" th:value="${employeeId}">
         </div>
         <button type="submit" class="btn btn-primary">Filter</button>
-        <a th:href="@{/export-to-excel}"> Export to Excel</a>
+        <a th:href="@{/export-to-excel}" class="btn btn-primary">Export to Excel</a>
     </form>
     <hr>
 
@@ -65,7 +65,6 @@
         </tbody>
     </table>
     <a th:href="@{/indexreport}"> Back to Raport List</a>
-
 </div>
 </body>
 </html>

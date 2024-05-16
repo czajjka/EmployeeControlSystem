@@ -28,6 +28,11 @@ public class EmployeeServiceImpl implements EmployeeServices {
     @Autowired
     private EntryExitRepository entryExitRepo;
 
+    @Autowired
+    public EmployeeServiceImpl(EmployeeRepository empRepo, EntryExitRepository entryExitRepo) {
+        this.empRepo = empRepo;
+        this.entryExitRepo = entryExitRepo;
+    }
 
     @Override
     public List<Employee> getAllEmployee() {
@@ -96,7 +101,9 @@ public class EmployeeServiceImpl implements EmployeeServices {
         long getWorkHours = 0;
         System.out.println("AAA");
         System.out.println(response.getCharacterEncoding());
+        System.out.println(employeeId);
         System.out.println("AAA");
+
         // Filtruj raporty na podstawie przekazanych parametrów
         if (employeeId != null && startTimeString != null && !startTimeString.isEmpty() && endTimeString != null && !endTimeString.isEmpty()) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -123,4 +130,5 @@ public class EmployeeServiceImpl implements EmployeeServices {
         ExcelExportUtils exportUtils = new ExcelExportUtils(employees);
         exportUtils.exportDataToExcel(response);
         return employees;
-    }}
+    }
+}
