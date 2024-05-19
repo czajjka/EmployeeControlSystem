@@ -4,6 +4,7 @@ import com.example.demo.security.model.MyUser;
 import com.example.demo.security.model.MyUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,5 +22,11 @@ public class RegisterController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return myUserRepository.save(user);
     }
+//    @PostMapping("/register/user")
+//    public String createUser(@ModelAttribute MyUser user) {
+//        user.setPassword(passwordEncoder.encode(user.getPassword()));
+//        myUserRepository.save(user);
+//        return "redirect:/security/login";
+//    }
 
 }
