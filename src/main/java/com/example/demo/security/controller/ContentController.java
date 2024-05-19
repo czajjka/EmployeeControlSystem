@@ -1,0 +1,28 @@
+package com.example.demo.security.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class ContentController {
+
+    @GetMapping("/home")
+    public String handleWelcome() {
+        return "/security/home";
+    }
+
+    @GetMapping("/admin/home")
+    public String handleAdminHome() {
+        return "/index";
+    }
+
+    @GetMapping("/user/home")
+    public String handleUserHome() {
+        return "/security/home_user";
+    }
+
+    @GetMapping("/login")
+    public String handleLogin() {
+        return "/security/login";
+    }
+}
