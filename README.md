@@ -18,6 +18,23 @@
 
 · log their check-outs
 
+## Technologies and Dependencies :
+· Spring Boot
+
+· Spring Data Jpa (Hibernate)
+
+· Spring Security
+
+· Thymeleaf
+
+· Devtools
+
+· MySQL
+
+· JWT 
+
+· Apache POI
+
 
 ![image](https://github.com/czajjka/EmployeeControlSystem/assets/131516264/e77eb798-1055-4b8c-bdbf-bd15571c6de5)
 
