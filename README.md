@@ -1,4 +1,4 @@
-# The Employee Control System is a Java-based application designed to manage and track employee attendance, specifically their check-in and check-out times for each workday. 
+# The Employee Control System is a Java-based application designed to manage and track employee attendance, specifically their check-in and check-out times for each workday
 
 ## The system allows administrators to :
 · add new employees
