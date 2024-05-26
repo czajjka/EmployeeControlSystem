@@ -1,7 +1,5 @@
 package com.example.demo.security.config;
 
-
-import com.example.demo.security.model.MyUser;
 import com.example.demo.security.model.MyUserDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -10,14 +8,10 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -34,8 +28,10 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(registry -> {
                     registry.requestMatchers("/login", "/register/**").permitAll();
                     registry.requestMatchers("/admin/**").hasRole("ADMIN");
-                    registry.requestMatchers("/user/**").hasRole("USER");
-                    registry.anyRequest().authenticated();
+                    registry.requestMatchers("/user/**", "/entry", "/exit", "/saveEntry", "/exitEntry").hasRole("USER");
+                    registry.anyRequest().hasRole("ADMIN");
+
+//                    registry.anyRequest().authenticated();
                 })
 //                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll) // formularz logowania do aplikacji
 //                .build();
@@ -45,6 +41,12 @@ public class SecurityConfiguration {
                             .successHandler(new AuthenticationSuccessHandler()) // gdzie ma nas przenieść po autoryzacji
                             .permitAll();
                 })
+                .logout(logout -> logout
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+
+                )
                 .build();
     }
 
